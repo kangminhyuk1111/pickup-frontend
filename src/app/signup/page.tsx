@@ -1,14 +1,13 @@
 // src/app/signup/page.tsx
 'use client';
 
-import React, { useState } from 'react';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import React, {useState} from 'react';
+import {Eye, EyeOff, ArrowLeft} from 'lucide-react';
 import Link from 'next/link';
 
 interface SignupForm {
     email: string;
     password: string;
-    confirmPassword: string;
     nickname: string;
     height: string;
     weight: string;
@@ -16,11 +15,20 @@ interface SignupForm {
     level: string;
 }
 
+interface Position {
+    position: string;
+    value: string;
+}
+
+interface Level {
+    level: string;
+    value: string;
+}
+
 const SignupPage = () => {
     const [form, setForm] = useState<SignupForm>({
         email: '',
         password: '',
-        confirmPassword: '',
         nickname: '',
         height: '',
         weight: '',
@@ -31,18 +39,22 @@ const SignupPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [step, setStep] = useState(1); // 1: 기본 정보, 2: 농구 정보
 
-    const positions = [
-        'Point Guard (PG)',
-        'Shooting Guard (SG)',
-        'Small Forward (SF)',
-        'Power Forward (PF)',
-        'Center (C)'
+    const positions: Position[] = [
+        {position: 'Point Guard (PG)', value: 'PG'},
+        {position: 'Shooting Guard (SG)', value: 'SG'},
+        {position: 'Small Forward (SF)', value: 'SF'},
+        {position: 'Power Forward (PF)', value: 'PF'},
+        {position: 'Center (C)', value: 'C'},
     ];
 
-    const levels = ['초급', '중급', '상급'];
+    const levels: Level[] = [
+        {level: '초급', value: "BEGINNER"},
+        {level: '중급', value: "INTERMEDIATE"},
+        {level: '상급', value: "ADVANCED"}
+    ];
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setForm(prev => ({
             ...prev,
             [name]: value
@@ -64,7 +76,7 @@ const SignupPage = () => {
                         href="/"
                         className="text-gray-400 hover:text-white inline-flex items-center gap-2 mb-6"
                     >
-                        <ArrowLeft className="w-5 h-5" />
+                        <ArrowLeft className="w-5 h-5"/>
                         메인으로
                     </Link>
                     <h1 className="text-3xl font-bold text-white">회원가입</h1>
@@ -75,8 +87,8 @@ const SignupPage = () => {
 
                 {/* 진행 상태 표시 */}
                 <div className="flex gap-2 mb-8">
-                    <div className={`h-1 flex-1 rounded ${step === 1 ? 'bg-orange-500' : 'bg-orange-500/30'}`} />
-                    <div className={`h-1 flex-1 rounded ${step === 2 ? 'bg-orange-500' : 'bg-orange-500/30'}`} />
+                    <div className={`h-1 flex-1 rounded ${step === 1 ? 'bg-orange-500' : 'bg-orange-500/30'}`}/>
+                    <div className={`h-1 flex-1 rounded ${step === 2 ? 'bg-orange-500' : 'bg-orange-500/30'}`}/>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -119,7 +131,7 @@ const SignupPage = () => {
                                         onClick={() => setShowPassword(!showPassword)}
                                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
                                     >
-                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                        {showPassword ? <EyeOff className="w-5 h-5"/> : <Eye className="w-5 h-5"/>}
                                     </button>
                                 </div>
                             </div>
@@ -132,8 +144,6 @@ const SignupPage = () => {
                                 <input
                                     type="password"
                                     name="confirmPassword"
-                                    value={form.confirmPassword}
-                                    onChange={handleChange}
                                     className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"
                                     placeholder="비밀번호를 다시 입력해주세요"
                                     required
@@ -204,8 +214,8 @@ const SignupPage = () => {
                                     required
                                 >
                                     <option value="">포지션을 선택해주세요</option>
-                                    {positions.map(position => (
-                                        <option key={position} value={position}>{position}</option>
+                                    {positions.map((position: Position) => (
+                                        <option key={position.value} value={position.value}>{position.position}</option>
                                     ))}
                                 </select>
                             </div>
@@ -224,7 +234,7 @@ const SignupPage = () => {
                                 >
                                     <option value="">실력 수준을 선택해주세요</option>
                                     {levels.map(level => (
-                                        <option key={level} value={level}>{level}</option>
+                                        <option key={level.value} value={level.value}>{level.level}</option>
                                     ))}
                                 </select>
                             </div>
