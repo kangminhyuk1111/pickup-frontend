@@ -1,27 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import React, {useState} from 'react';
+import {Eye, EyeOff, ArrowLeft} from 'lucide-react';
 import Link from 'next/link';
+import {useRouter} from 'next/navigation';
+import {authService} from '@/app/api/auth/auth'
 
 interface LoginForm {
     email: string;
     password: string;
-    rememberMe: boolean;
 }
 
 const LoginPage = () => {
+    const router = useRouter();
     const [form, setForm] = useState<LoginForm>({
         email: '',
-        password: '',
-        rememberMe: false
+        password: ''
     });
 
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, checked, type } = e.target;
+        const {name, value, checked, type} = e.target;
         setForm(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
@@ -33,26 +34,39 @@ const LoginPage = () => {
         setIsLoading(true);
 
         try {
-            // TODO: API 호출
-            console.log('Login attempt:', form);
-            await new Promise(resolve => setTimeout(resolve, 1000)); // 임시 딜레이
-        } catch (error) {
-            console.error('Login failed:', error);
+            const response = await authService.login(form);
+            console.log('Login response:', response);
+            alert('로그인되었습니다.');
+            router.replace('/');
+        } catch (error: any) {
+            alert(
+                error.response?.data?.message ||
+                '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.'
+            );
         } finally {
             setIsLoading(false);
         }
     };
 
+    const handleGoogleLogin = () => {
+        window.location.href = authService.getGoogleLoginUrl();
+    };
+
+    const handleKakaoLogin = () => {
+        window.location.href = authService.getKakaoLoginUrl();
+    };
+
+    // JSX는 동일하게 유지하되, 소셜 로그인 버튼에 핸들러 추가
     return (
         <div className="min-h-screen bg-black pt-20 pb-20">
+            {/* 기존 JSX와 동일 */}
             <div className="max-w-md mx-auto px-4">
-                {/* 헤더 */}
                 <div className="mb-8">
                     <Link
                         href="/"
                         className="text-gray-400 hover:text-white inline-flex items-center gap-2 mb-6"
                     >
-                        <ArrowLeft className="w-5 h-5" />
+                        <ArrowLeft className="w-5 h-5"/>
                         메인으로
                     </Link>
                     <h1 className="text-3xl font-bold text-white">로그인</h1>
@@ -62,7 +76,7 @@ const LoginPage = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* 이메일 */}
+                    {/* 이메일 입력 */}
                     <div>
                         <label className="block text-sm font-medium text-gray-400 mb-2">
                             이메일
@@ -78,7 +92,7 @@ const LoginPage = () => {
                         />
                     </div>
 
-                    {/* 비밀번호 */}
+                    {/* 비밀번호 입력 */}
                     <div>
                         <label className="block text-sm font-medium text-gray-400 mb-2">
                             비밀번호
@@ -98,7 +112,7 @@ const LoginPage = () => {
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
                             >
-                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                {showPassword ? <EyeOff className="w-5 h-5"/> : <Eye className="w-5 h-5"/>}
                             </button>
                         </div>
                     </div>
@@ -109,7 +123,6 @@ const LoginPage = () => {
                             <input
                                 type="checkbox"
                                 name="rememberMe"
-                                checked={form.rememberMe}
                                 onChange={handleChange}
                                 className="w-4 h-4 bg-zinc-800 border-zinc-700 rounded text-orange-500 focus:ring-orange-500"
                             />
@@ -128,8 +141,8 @@ const LoginPage = () => {
                         type="submit"
                         disabled={isLoading}
                         className={`w-full bg-orange-500 text-white py-3 px-4 rounded-lg font-semibold 
-              ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-orange-600'} 
-              transition-colors`}
+                            ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-orange-600'} 
+                            transition-colors`}
                     >
                         {isLoading ? '로그인 중...' : '로그인'}
                     </button>
@@ -147,12 +160,14 @@ const LoginPage = () => {
                     <div className="space-y-3">
                         <button
                             type="button"
+                            onClick={handleGoogleLogin}
                             className="w-full bg-zinc-800 text-white py-3 px-4 rounded-lg font-semibold hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
                         >
                             Google로 계속하기
                         </button>
                         <button
                             type="button"
+                            onClick={handleKakaoLogin}
                             className="w-full bg-[#FEE500] text-black py-3 px-4 rounded-lg font-semibold hover:bg-[#FDD900] transition-colors flex items-center justify-center gap-2"
                         >
                             카카오로 계속하기
