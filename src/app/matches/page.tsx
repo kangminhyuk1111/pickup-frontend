@@ -1,7 +1,7 @@
 'use client';
 
 import React, {useMemo, useState} from 'react';
-import {MapPin, Users, Clock, Calendar, Trophy, CreditCard} from 'lucide-react';
+import {MapPin, Users, Clock, Calendar, Trophy, CreditCard, Plus, Search} from 'lucide-react';
 import JoinGameModal from "@/app/components/JoinGameModal";
 import LocationModal from "@/app/components/LocationModal";
 
@@ -126,177 +126,103 @@ const PickupBoard = () => {
     }, [pickupPosts, locationFilter, levelFilter]);
 
     return (
-
-        <div className="min-h-screen bg-black pt-20 pb-20">
-            <div className="max-w-6xl mx-auto px-4">
+        <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-black pt-24 pb-20">
+            <div className="max-w-7xl mx-auto px-4">
                 {/* 헤더 섹션 */}
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-4xl font-bold text-white mb-2">픽업 게임</h1>
-                        <p className="text-gray-400">함께 농구할 친구를 찾아보세요</p>
+                        <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+                            농구 메이트 찾기
+                        </h1>
+                        <p className="text-zinc-400 mt-2 text-lg">근처의 매칭을 찾아보세요</p>
                     </div>
-                    <button
-                        className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-3 rounded-full font-bold hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2">
-                        <Users className="w-5 h-5"/>
-                        게임 만들기
+                    <button className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 w-full md:w-auto justify-center">
+                        <Plus className="w-5 h-5" />
+                        새로운 매칭 만들기
                     </button>
                 </div>
 
-                {/* 필터 섹션 */}
-                <div
-                    className="bg-gradient-to-r from-zinc-900/50 to-zinc-800/30 backdrop-blur p-6 rounded-xl mb-8 border border-zinc-800">
+                {/* 검색 & 필터 */}
+                <div className="bg-zinc-800/30 backdrop-blur p-6 rounded-2xl mb-12 border border-zinc-700/50">
                     <div className="flex flex-wrap gap-4">
-                        <select
-                            className="bg-zinc-800/50 text-white px-6 py-3 rounded-full border border-zinc-700 focus:border-orange-500 outline-none transition-all hover:border-orange-500/50"
-                            value={locationFilter}
-                            onChange={(e) => setLocationFilter(e.target.value)}
-                        >
-                            <option value="all">전체 지역</option>
-                            <option value="강남">강남구</option>
-                            <option value="서초">서초구</option>
-                            <option value="송파">송파구</option>
+                        <div className="flex-1 min-w-[200px]">
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-zinc-400 w-5 h-5" />
+                                <input
+                                    type="text"
+                                    placeholder="코트나 지역 검색..."
+                                    className="w-full bg-zinc-900/50 text-white pl-12 pr-4 py-4 rounded-xl border border-zinc-700 focus:border-orange-500 outline-none"
+                                />
+                            </div>
+                        </div>
+                        <select className="bg-zinc-900/50 text-white px-6 py-4 rounded-xl border border-zinc-700 focus:border-orange-500 outline-none min-w-[150px]">
+                            <option value="all">전체 레벨</option>
+                            <option value="beginner">초급</option>
+                            <option value="intermediate">중급</option>
+                            <option value="advanced">상급</option>
                         </select>
-                        <select
-                            className="bg-zinc-800/50 text-white px-6 py-3 rounded-full border border-zinc-700 focus:border-orange-500 outline-none transition-all hover:border-orange-500/50"
-                            value={levelFilter}
-                            onChange={(e) => setLevelFilter(e.target.value)}
-                        >
-                            <option value="all">모든 레벨</option>
-                            <option value="초급">초급</option>
-                            <option value="중급">중급</option>
-                            <option value="상급">상급</option>
-                        </select>
-                    </div>
-                    <div className="mt-4 text-gray-400 text-sm">
-                        {filteredPosts.length === 0 ? (
-                            "해당하는 게임이 없습니다."
-                        ) : (
-                            `총 ${filteredPosts.length}개의 게임이 있습니다.`
-                        )}
                     </div>
                 </div>
 
-                {/* 게시글 목록 */}
-                <div className="space-y-6">
-                    {filteredPosts.map((post) => (
-                        <div
-                            key={post.id}
-                            className="bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 backdrop-blur rounded-xl p-6 border border-zinc-800 hover:border-orange-500/20 transition-all hover:shadow-lg hover:shadow-orange-500/10"
-                        >
-                            {/* 상단 섹션 */}
-                            <div className="flex justify-between items-start mb-6">
+                {/* 카드 그리드 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {pickupPosts.map((post) => (
+                        <div key={post.id} className="group">
+                            <div className="bg-zinc-800/30 backdrop-blur rounded-2xl p-6 border border-zinc-700/50 hover:border-orange-500/50 transition-all h-full flex flex-col justify-between">
+                                {/* 카드 헤더 */}
                                 <div>
-                                    <h3 className="text-2xl font-bold text-white mb-3">{post.courtName}</h3>
-                                    <div className="flex items-center text-gray-400 gap-4">
-                                        <div
-                                            className="flex items-center text-gray-400 cursor-pointer hover:text-white transition-colors"
-                                            onClick={() => handleLocationClick(post)}
-                                        >
-                                            <MapPin className="w-4 h-4 mr-2 text-orange-500"/>
-                                            {post.location}
-                                        </div>
-                                        <div
-                                            className={`px-4 py-1 rounded-full text-sm font-semibold ${getLevelColor(post.level)}`}>
-                                            {post.level}
-                                        </div>
+                                    <div className="flex justify-between items-start mb-4">
+                                        <h3 className="text-xl font-bold text-white group-hover:text-orange-500 transition-colors">
+                                            {post.courtName}
+                                        </h3>
+                                        <span className="px-3 py-1 bg-orange-500/10 text-orange-500 rounded-full text-sm font-medium">
+                      {post.remainingSpots}자리 남음
+                    </span>
                                     </div>
-                                </div>
-                                {getStatusBadge(post.status, post.remainingSpots)}
-                            </div>
 
-                            {/* 정보 섹션 */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                <div
-                                    className="bg-gradient-to-br from-zinc-800/50 to-zinc-800/30 rounded-xl p-4 hover:border-orange-500/20 border border-transparent transition-all">
-                                    <div className="text-gray-400 text-sm mb-2 flex items-center gap-2">
-                                        <Calendar className="w-4 h-4 text-orange-500"/>
-                                        날짜
+                                    <div className="flex items-center gap-2 text-zinc-400 mb-6">
+                                        <MapPin className="w-4 h-4 text-orange-500" />
+                                        {post.location}
                                     </div>
-                                    <div className="text-white font-semibold">{post.date}</div>
-                                </div>
-                                <div
-                                    className="bg-gradient-to-br from-zinc-800/50 to-zinc-800/30 rounded-xl p-4 hover:border-orange-500/20 border border-transparent transition-all">
-                                    <div className="text-gray-400 text-sm mb-2 flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-orange-500"/>
-                                        시간
-                                    </div>
-                                    <div className="text-white font-semibold">{post.time}</div>
-                                </div>
-                                <div
-                                    className="bg-gradient-to-br from-zinc-800/50 to-zinc-800/30 rounded-xl p-4 hover:border-orange-500/20 border border-transparent transition-all">
-                                    <div className="text-gray-400 text-sm mb-2 flex items-center gap-2">
-                                        <Users className="w-4 h-4 text-orange-500"/>
-                                        참여 인원
-                                    </div>
-                                    <div className="text-white font-semibold">
-                                        {post.currentPlayers}/{post.maxPlayers}명
-                                    </div>
-                                </div>
-                                <div
-                                    className="bg-gradient-to-br from-zinc-800/50 to-zinc-800/30 rounded-xl p-4 hover:border-orange-500/20 border border-transparent transition-all">
-                                    <div className="text-gray-400 text-sm mb-2 flex items-center gap-2">
-                                        <CreditCard className="w-4 h-4 text-orange-500"/>
-                                        참가비
-                                    </div>
-                                    <div className="text-white font-semibold">{post.cost}</div>
-                                </div>
-                            </div>
 
-                            {/* 하단 섹션 */}
-                            <div className="flex justify-between items-center border-t border-zinc-800 pt-6">
-                                <div className="flex items-center gap-3">
-                                    <div
-                                        className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/20">
-                                        <Trophy className="w-5 h-5 text-white"/>
-                                    </div>
-                                    <div>
-                                        <div className="text-gray-400 text-sm">주최자</div>
-                                        <div className="text-white font-semibold">{post.host}</div>
+                                    {/* 정보 그리드 */}
+                                    <div className="grid grid-cols-2 gap-4 mb-6">
+                                        <div className="bg-zinc-900/50 rounded-xl p-4">
+                                            <div className="flex items-center gap-2 text-zinc-400 text-sm mb-1">
+                                                <Calendar className="w-4 h-4 text-orange-500" />
+                                                날짜
+                                            </div>
+                                            <div className="text-white">{post.date}</div>
+                                        </div>
+                                        <div className="bg-zinc-900/50 rounded-xl p-4">
+                                            <div className="flex items-center gap-2 text-zinc-400 text-sm mb-1">
+                                                <Clock className="w-4 h-4 text-orange-500" />
+                                                시간
+                                            </div>
+                                            <div className="text-white">{post.time}</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => handleJoinClick(post)}
-                                    className={`px-8 py-3 rounded-full font-bold transition-all ${
-                                        post.status === 'recruiting'
-                                            ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-500/20'
-                                            : 'bg-zinc-800 text-gray-400 cursor-not-allowed'
-                                    }`}
-                                    disabled={post.status !== 'recruiting'}
-                                >
-                                    {post.status === 'recruiting' ? '참여하기' : '마감됨'}
-                                </button>
+
+                                {/* 카드 푸터 */}
+                                <div className="flex justify-between items-center pt-4 border-t border-zinc-700/50">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center">
+                                            <Trophy className="w-5 h-5 text-white" />
+                                        </div>
+                                        <div>
+                                            <div className="text-zinc-400 text-sm">주최자</div>
+                                            <div className="text-white font-medium">{post.host}</div>
+                                        </div>
+                                    </div>
+                                    <button className="px-6 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 text-white font-medium hover:opacity-90 transition-all">
+                                        참여하기
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
-                {/* 모달 추가 */}
-                {selectedGame && (
-                    <JoinGameModal
-                        isOpen={isModalOpen}
-                        onClose={() => {
-                            setIsModalOpen(false);
-                            setSelectedGame(null);
-                        }}
-                        gameInfo={{
-                            courtName: selectedGame.courtName,
-                            date: selectedGame.date,
-                            time: selectedGame.time,
-                            level: selectedGame.level,
-                            cost: selectedGame.cost,
-                        }}
-                        onJoin={handleJoinSubmit}
-                    />
-                )}
-                {selectedLocation && (
-                    <LocationModal
-                        isOpen={isLocationModalOpen}
-                        onClose={() => {
-                            setIsLocationModalOpen(false);
-                            setSelectedLocation(null);
-                        }}
-                        location={selectedLocation}
-                    />
-                )}
             </div>
         </div>
     );

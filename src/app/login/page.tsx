@@ -35,7 +35,6 @@ const LoginPage = () => {
 
         try {
             const response = await authService.login(form);
-            console.log('Login response:', response);
             alert('로그인되었습니다.');
             router.replace('/');
         } catch (error: any) {

@@ -14,7 +14,7 @@ export const authService = {
 
         // 토큰을 쿠키에 저장
         Cookies.set('accessToken', response.data.accessToken, {
-            expires: 1/24,  // 1일
+            expires: 1 / 24,  // 1일
             secure: process.env.NODE_ENV === 'production',  // HTTPS에서만 작동
             sameSite: 'strict'
         });
@@ -34,5 +34,11 @@ export const authService = {
 
     getKakaoLoginUrl: () => {
         return `${BASE_URL}/oauth2/authorization/kakao`;
+    },
+
+    signup: async (signupForm: any) => {
+        const response = await api.post("/member", signupForm);
+
+        return response.data;
     }
 };
