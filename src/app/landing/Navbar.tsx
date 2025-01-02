@@ -24,19 +24,19 @@ export const NavBar = () => {
     }, []);
 
     const fetchUserProfile = async (token: any) => {
-        try {
-            const response = await fetch('/api/user/profile', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            if (response.ok) {
-                const userData = await response.json();
-                setUser(userData);
-            }
-        } catch (error) {
-            console.error('Failed to fetch user profile:', error);
-        }
+        // try {
+        //     const response = await fetch('/api/user/profile', {
+        //         headers: {
+        //             'Authorization': `Bearer ${token}`
+        //         }
+        //     });
+        //     if (response.ok) {
+        //         const userData = await response.json();
+        //         setUser(userData);
+        //     }
+        // } catch (error) {
+        //     console.error('Failed to fetch user profile:', error);
+        // }
     };
 
     const handleLogout = () => {

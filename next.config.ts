@@ -1,15 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: true,
-    swcMinify: true,
     async rewrites() {
         return [
             {
-                source: "/:path*",
-                destination: "http://localhost:8080/:path*",
-            },
-        ];
-    },
-};
+                source: '/api/:path*',
+                destination: process.env.NEXT_PUBLIC_API_URL + '/:path*' // 또는 'http://localhost:8080/:path*'
+            }
+        ]
+    }
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig

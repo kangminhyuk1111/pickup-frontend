@@ -142,7 +142,7 @@ export const courts: Court[] = [
         lighting: true,
         parking: true,
         rating: 4.9,
-        images: ["/img/court/olympic.jpg"],
+        images: ["/img/court/olympicpark.jpg"],
         facilities: ["화장실", "편의점", "주차장", "음수대"],
         bestTime: "저녁",
         popularTimes: [
@@ -164,7 +164,7 @@ export const courts: Court[] = [
         lighting: true,
         parking: false,
         rating: 4.3,
-        images: ["/img/court/dongjak.jpg"],
+        images: ["/img/court/boramae.jpg"],
         facilities: ["화장실", "벤치", "음수대"],
         bestTime: "저녁",
         popularTimes: [
@@ -185,7 +185,7 @@ export const courts: Court[] = [
         lighting: true,
         parking: true,
         rating: 4.7,
-        images: ["/img/court/ttukseom.jpg"],
+        images: ["/img/court/dduksum.jpg"],
         facilities: ["화장실", "편의점", "주차장", "벤치"],
         bestTime: "저녁",
         popularTimes: [

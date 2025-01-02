@@ -1,44 +1,60 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const BASE_URL = '/';
-
 const api = axios.create({
-    baseURL: BASE_URL,
-    withCredentials: true // 쿠키를 주고받을 때 필요
+    baseURL: '/api',
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
+    }
 });
+
+api.interceptors.request.use(
+    config => {
+        console.log('Request:', {
+            url: config.url,
+            method: config.method,
+            baseURL: config.baseURL,
+            headers: config.headers
+        });
+        return config;
+    },
+    error => {
+        console.error('Request error:', error);
+        return Promise.reject(error);
+    }
+);
 
 export const authService = {
     login: async (credentials: { email: string; password: string }) => {
-        const response = await api.post('/auth/login', credentials);
+        try {
+            const response = await api.post('/auth/login', credentials);
+            console.log('Login response:', response);
 
-        // 토큰을 쿠키에 저장
-        Cookies.set('accessToken', response.data.accessToken, {
-            expires: 1 / 24,  // 1일
-            secure: process.env.NODE_ENV === 'production',  // HTTPS에서만 작동
-            sameSite: 'strict'
-        });
+            if (response.data?.accessToken) {
+                Cookies.set('accessToken', response.data.accessToken, {
+                    expires: 1 / 24,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict'
+                });
 
-        Cookies.set('refreshToken', response.data.refreshToken, {
-            expires: 7,  // 7일
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
-        });
+                Cookies.set('refreshToken', response.data.refreshToken, {
+                    expires: 7,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict'
+                });
+            }
 
-        return response.data;
-    },
-
-    getGoogleLoginUrl: () => {
-        return `${BASE_URL}/oauth2/authorization/google`;
-    },
-
-    getKakaoLoginUrl: () => {
-        return `${BASE_URL}/oauth2/authorization/kakao`;
+            return response.data;
+        } catch (error: any) {
+            console.log(error)
+            console.error('Login error:', error.response?.data || error);
+            throw error;
+        }
     },
 
     signup: async (signupForm: any) => {
         const response = await api.post("/member", signupForm);
-
         return response.data;
     }
 };

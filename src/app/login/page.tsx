@@ -34,9 +34,9 @@ const LoginPage = () => {
         setIsLoading(true);
 
         try {
-            const response = await authService.login(form);
+            await authService.login(form);
             alert('로그인되었습니다.');
-            router.replace('/');
+            window.location.href = '/';
         } catch (error: any) {
             alert(
                 error.response?.data?.message ||
@@ -45,14 +45,6 @@ const LoginPage = () => {
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const handleGoogleLogin = () => {
-        window.location.href = authService.getGoogleLoginUrl();
-    };
-
-    const handleKakaoLogin = () => {
-        window.location.href = authService.getKakaoLoginUrl();
     };
 
     // JSX는 동일하게 유지하되, 소셜 로그인 버튼에 핸들러 추가
@@ -128,7 +120,7 @@ const LoginPage = () => {
                             <span className="text-sm text-gray-400">로그인 상태 유지</span>
                         </label>
                         <Link
-                            href="/forgot-password"
+                            href="/findPassword"
                             className="text-sm text-orange-500 hover:text-orange-400"
                         >
                             비밀번호 찾기
@@ -159,14 +151,12 @@ const LoginPage = () => {
                     <div className="space-y-3">
                         <button
                             type="button"
-                            onClick={handleGoogleLogin}
                             className="w-full bg-zinc-800 text-white py-3 px-4 rounded-lg font-semibold hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
                         >
                             Google로 계속하기
                         </button>
                         <button
                             type="button"
-                            onClick={handleKakaoLogin}
                             className="w-full bg-[#FEE500] text-black py-3 px-4 rounded-lg font-semibold hover:bg-[#FDD900] transition-colors flex items-center justify-center gap-2"
                         >
                             카카오로 계속하기

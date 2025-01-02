@@ -27,7 +27,7 @@ const HeroSection = () => {
     };
 
     return (
-        <section className="relative min-h-screen flex items-center pt-16">
+        <section className="relative min-h-screen flex items-center pt-16 overflow-x-hidden overflow-y-hidden">
             {/* Background Images with Parallax */}
             <div className="absolute inset-0 z-0 overflow-hidden">
                 {images.map((img, index) => (

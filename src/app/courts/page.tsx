@@ -5,6 +5,7 @@ import React, {useMemo, useState} from 'react';
 import {ParkingCircle, MapPin, Users, Clock, Star, Grid, Map as MapIcon} from 'lucide-react';
 import CourtDetailModal from "@/app/components/CourtDetailModal";
 import {Court, courts} from "@/app/courts/type/court";
+import {AuthCheck} from "@/app/components/AuthCheck";
 
 const CourtsPage = () => {
     const [viewMode, setViewMode] = useState<'card' | 'map'>('card');
@@ -100,81 +101,84 @@ const CourtsPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-black pt-20 pb-20">
-            <div className="max-w-6xl mx-auto px-4">
-                {/* 헤더 */}
-                <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold text-white">추천 농구장</h1>
-                        <p className="text-gray-400 mt-2">
-                            서울시 야외 농구장을 찾아보세요
-                        </p>
+        <>
+            <AuthCheck/>
+            <div className="min-h-screen bg-black pt-20 pb-20">
+                <div className="max-w-6xl mx-auto px-4">
+                    {/* 헤더 */}
+                    <div className="flex justify-between items-center mb-8">
+                        <div>
+                            <h1 className="text-3xl font-bold text-white">추천 농구장</h1>
+                            <p className="text-gray-400 mt-2">
+                                서울시 야외 농구장을 찾아보세요
+                            </p>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setViewMode('card')}
+                                className={`p-2 rounded-lg ${
+                                    viewMode === 'card'
+                                        ? 'bg-orange-500 text-white'
+                                        : 'bg-zinc-800 text-gray-400'
+                                }`}
+                            >
+                                <Grid className="w-5 h-5"/>
+                            </button>
+                            <button
+                                onClick={() => setViewMode('map')}
+                                className={`p-2 rounded-lg ${
+                                    viewMode === 'map'
+                                        ? 'bg-orange-500 text-white'
+                                        : 'bg-zinc-800 text-gray-400'
+                                }`}
+                            >
+                                <MapIcon className="w-5 h-5"/>
+                            </button>
+                        </div>
                     </div>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => setViewMode('card')}
-                            className={`p-2 rounded-lg ${
-                                viewMode === 'card'
-                                    ? 'bg-orange-500 text-white'
-                                    : 'bg-zinc-800 text-gray-400'
-                            }`}
-                        >
-                            <Grid className="w-5 h-5"/>
-                        </button>
-                        <button
-                            onClick={() => setViewMode('map')}
-                            className={`p-2 rounded-lg ${
-                                viewMode === 'map'
-                                    ? 'bg-orange-500 text-white'
-                                    : 'bg-zinc-800 text-gray-400'
-                            }`}
-                        >
-                            <MapIcon className="w-5 h-5"/>
-                        </button>
-                    </div>
-                </div>
 
-                {/* 필터 */}
-                <div className="bg-zinc-900/50 backdrop-blur p-6 rounded-xl mb-8 border border-zinc-800">
-                    <div className="flex flex-wrap gap-4">
-                        <select
-                            className="bg-zinc-800 text-white px-4 py-2 rounded-lg border border-zinc-700 focus:border-orange-500 outline-none"
-                            value={locationFilter}
-                            onChange={(e) => setLocationFilter(e.target.value)}
-                        >
-                            {locations.map(location => (
-                                <option key={location} value={location}>
-                                    {location === '전체' ? '전체 지역' : location}
-                                </option>
+                    {/* 필터 */}
+                    <div className="bg-zinc-900/50 backdrop-blur p-6 rounded-xl mb-8 border border-zinc-800">
+                        <div className="flex flex-wrap gap-4">
+                            <select
+                                className="bg-zinc-800 text-white px-4 py-2 rounded-lg border border-zinc-700 focus:border-orange-500 outline-none"
+                                value={locationFilter}
+                                onChange={(e) => setLocationFilter(e.target.value)}
+                            >
+                                {locations.map(location => (
+                                    <option key={location} value={location}>
+                                        {location === '전체' ? '전체 지역' : location}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* 코트 목록 */}
+                    {viewMode === 'card' ? (
+                        <div className="grid md:grid-cols-3 gap-4">
+                            {filteredCourts.map(court => (
+                                <CourtCard key={court.id} court={court}/>
                             ))}
-                        </select>
-                    </div>
+                        </div>
+
+                    ) : (
+                        <div className="bg-zinc-900 rounded-xl h-[600px] flex items-center justify-center">
+                            {/* 지도 구현 필요 - Kakao Maps or Google Maps */}
+                            <p className="text-gray-400">지도 뷰 구현 예정</p>
+                        </div>
+                    )}
                 </div>
-
-                {/* 코트 목록 */}
-                {viewMode === 'card' ? (
-                    <div className="grid md:grid-cols-3 gap-4">
-                        {filteredCourts.map(court => (
-                            <CourtCard key={court.id} court={court}/>
-                        ))}
-                    </div>
-
-                ) : (
-                    <div className="bg-zinc-900 rounded-xl h-[600px] flex items-center justify-center">
-                        {/* 지도 구현 필요 - Kakao Maps or Google Maps */}
-                        <p className="text-gray-400">지도 뷰 구현 예정</p>
-                    </div>
+                {/* 상세 정보 모달 */}
+                {selectedCourt && (
+                    <CourtDetailModal
+                        court={selectedCourt}
+                        isOpen={!!selectedCourt}
+                        onClose={() => setSelectedCourt(null)}
+                    />
                 )}
             </div>
-            {/* 상세 정보 모달 */}
-            {selectedCourt && (
-                <CourtDetailModal
-                    court={selectedCourt}
-                    isOpen={!!selectedCourt}
-                    onClose={() => setSelectedCourt(null)}
-                />
-            )}
-        </div>
+        </>
     );
 };
 
