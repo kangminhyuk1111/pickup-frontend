@@ -1,3 +1,5 @@
+'use client';
+
 import React, {useState} from 'react';
 import {
     MapPin,
@@ -11,23 +13,53 @@ import {
     AlertCircle,
     X
 } from 'lucide-react';
+import type {Post} from "@/app/matches/type/post-type";
 
-const MatchDetailModal = ({match, isOpen, onClose}: { match: any, isOpen: any, onClose: any }) => {
+interface MatchDetailModalProps {
+    match: Post;
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+const MatchDetailModal = ({match, isOpen, onClose}: MatchDetailModalProps) => {
     const [showJoinModal, setShowJoinModal] = useState(false);
 
     if (!isOpen) return null;
 
-    const getLevelColor = (level: any) => {
+    const getLevelColor = (level: string) => {
         switch (level) {
-            case '초급':
+            case 'BEGINNER':
                 return 'bg-green-500/10 text-green-500';
-            case '중급':
+            case 'INTERMEDIATE':
                 return 'bg-yellow-500/10 text-yellow-500';
-            case '상급':
+            case 'ADVANCED':
                 return 'bg-red-500/10 text-red-500';
             default:
                 return 'bg-gray-500/10 text-gray-500';
         }
+    };
+
+    const formatLevel = (level: string) => {
+        const levelMap: { [key: string]: string } = {
+            'BEGINNER': '초급',
+            'INTERMEDIATE': '중급',
+            'ADVANCED': '상급'
+        };
+        return levelMap[level] || level;
+    };
+
+    const formatDate = (date: string) => {
+        const d = new Date(date);
+        return d.toLocaleDateString('ko-KR', {month: 'long', day: 'numeric', weekday: 'short'});
+    };
+
+    const formatTime = (time: string) => {
+        const [hours, minutes] = time.split(':');
+        return `${hours}:${minutes}`;
+    };
+
+    const formatCost = (cost: number) => {
+        return cost === 0 ? '무료' : `${cost.toLocaleString()}원`;
     };
 
     const ProgressBar = ({current, max}: { current: number, max: number }) => (
@@ -64,6 +96,9 @@ const MatchDetailModal = ({match, isOpen, onClose}: { match: any, isOpen: any, o
         </div>
     );
 
+    // rules를 배열로 변환
+    const rulesList = typeof match.rules === 'string' ? match.rules.split(',') : [];
+
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
             <div className="max-w-4xl w-full mx-4">
@@ -78,17 +113,18 @@ const MatchDetailModal = ({match, isOpen, onClose}: { match: any, isOpen: any, o
 
                     {/* 메인 카드 */}
                     <div className="p-6">
-                        {/* 코트 정보 */}
+                        {/* 제목과 코트 정보 */}
                         <div className="flex justify-between items-start mb-6">
                             <div>
-                                <h2 className="text-2xl font-bold text-white mb-2">{match.courtName}</h2>
+                                <h2 className="text-2xl font-bold text-white mb-2">{match.title}</h2>
+                                <div className="text-lg text-white mb-2">{match.courtName}</div>
                                 <div className="flex items-center gap-2 text-zinc-400">
                                     <MapPin className="w-4 h-4 text-orange-500"/>
                                     {match.location}
                                 </div>
                             </div>
                             <span className={`px-4 py-1.5 rounded-full text-sm font-medium ${getLevelColor(match.level)}`}>
-                                {match.level}
+                                {formatLevel(match.level)}
                             </span>
                         </div>
 
@@ -99,14 +135,14 @@ const MatchDetailModal = ({match, isOpen, onClose}: { match: any, isOpen: any, o
                                     <Calendar className="w-4 h-4 text-orange-500"/>
                                     날짜
                                 </div>
-                                <div className="text-white text-lg">{match.date}</div>
+                                <div className="text-white text-lg">{formatDate(match.date)}</div>
                             </div>
                             <div className="bg-zinc-900/50 rounded-xl p-4">
                                 <div className="flex items-center gap-2 text-zinc-400 text-sm mb-1">
                                     <Clock className="w-4 h-4 text-orange-500"/>
                                     시간
                                 </div>
-                                <div className="text-white text-lg">{match.time}</div>
+                                <div className="text-white text-lg">{formatTime(match.time)}</div>
                             </div>
                         </div>
 
@@ -130,7 +166,7 @@ const MatchDetailModal = ({match, isOpen, onClose}: { match: any, isOpen: any, o
                                 <Wallet className="w-4 h-4 text-orange-500"/>
                                 참가비
                             </div>
-                            <span className="text-white text-lg font-medium">{match.cost}</span>
+                            <span className="text-white text-lg font-medium">{formatCost(match.cost)}</span>
                         </div>
 
                         {/* 설명 */}
@@ -140,17 +176,17 @@ const MatchDetailModal = ({match, isOpen, onClose}: { match: any, isOpen: any, o
                         </div>
 
                         {/* 주의사항 */}
-                        {match.rules && match.rules.length > 0 && (
+                        {rulesList.length > 0 && (
                             <div className="bg-zinc-900/50 rounded-xl p-4">
                                 <h3 className="font-medium text-white mb-2 flex items-center gap-2">
                                     <AlertCircle className="w-4 h-4 text-orange-500"/>
                                     주의사항
                                 </h3>
                                 <ul className="space-y-2">
-                                    {match.rules.map((rule: any, index: number) => (
+                                    {rulesList.map((rule, index) => (
                                         <li key={index} className="text-zinc-400 flex items-center gap-2">
                                             <span className="w-1 h-1 bg-orange-500 rounded-full"/>
-                                            {rule}
+                                            {rule.trim()}
                                         </li>
                                     ))}
                                 </ul>
@@ -168,7 +204,7 @@ const MatchDetailModal = ({match, isOpen, onClose}: { match: any, isOpen: any, o
                                 </div>
                                 <div>
                                     <div className="text-zinc-400 text-sm">주최자</div>
-                                    <div className="text-white font-medium">{match.host}</div>
+                                    <div className="text-white font-medium">Host #{match.hostId}</div>
                                 </div>
                             </div>
                             <button className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-all">
@@ -182,44 +218,17 @@ const MatchDetailModal = ({match, isOpen, onClose}: { match: any, isOpen: any, o
                             <button
                                 onClick={() => setShowJoinModal(true)}
                                 className={`px-6 py-2 rounded-xl font-medium transition-all ${
-                                    match.status === 'full'
+                                    match.status === 'CLOSED' || match.currentPlayers >= match.maxPlayers
                                         ? 'bg-zinc-700 text-zinc-400 cursor-not-allowed'
                                         : 'bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:opacity-90'
                                 }`}
-                                disabled={match.status === 'full'}
+                                disabled={match.status === 'CLOSED' || match.currentPlayers >= match.maxPlayers}
                             >
-                                {match.status === 'full' ? '마감됨' : '참여하기'}
+                                {match.status === 'CLOSED' || match.currentPlayers >= match.maxPlayers ? '마감됨' : '참여하기'}
                             </button>
                         </div>
                     </div>
                 </div>
-
-                {/* 참가자 목록 */}
-                {match.participants && (
-                    <div className="bg-zinc-800/30 backdrop-blur rounded-2xl border border-zinc-700/50 p-6 mt-4">
-                        <h3 className="font-medium text-white mb-4">참가자 목록</h3>
-                        <div className="space-y-3">
-                            {match.participants.map((participant: any) => (
-                                <div
-                                    key={participant.id}
-                                    className="flex items-center justify-between p-3 bg-zinc-900/50 rounded-xl"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div
-                                            className="w-10 h-10 bg-gradient-to-br from-orange-500/10 to-pink-500/10 rounded-full flex items-center justify-center">
-                                            <Users className="w-5 h-5 text-orange-500"/>
-                                        </div>
-                                        <div className="text-white">{participant.name}</div>
-                                    </div>
-                                    <span
-                                        className={`px-3 py-1 rounded-full text-sm font-medium ${getLevelColor(participant.level)}`}>
-                                        {participant.level}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
             </div>
 
             {/* 참가 모달 */}
