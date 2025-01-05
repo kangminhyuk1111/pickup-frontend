@@ -34,16 +34,17 @@ const HeroSection = () => {
                     <div
                         key={index}
                         className={`absolute inset-0 transition-opacity duration-1000 ${
-                            currentImageIndex === index ? 'opacity-50' : 'opacity-0'
+                            currentImageIndex === index ? 'opacity-100' : 'opacity-0'
                         }`}
                     >
                         <img
                             src={img}
                             alt={`배경 ${index + 1}`}
-                            className="w-full h-full object-cover scale-110 transition-transform duration-20000 transform hover:scale-100"
+                            className="w-full h-full object-cover"
                         />
                     </div>
                 ))}
+                {/* 단순한 그라데이션 오버레이만 유지 */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black" />
 
                 {/* Animated Overlay Pattern */}

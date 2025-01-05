@@ -3,7 +3,7 @@
 
 import React, {useEffect, useMemo, useState} from 'react';
 import {ParkingCircle, MapPin, Clock, Star, Grid, Map as MapIcon} from 'lucide-react';
-import CourtDetailModal from "@/app/courts/CourtDetailModal";
+import CourtDetailModal from "@/app/courts/component/CourtDetailModal";
 import {Court} from "@/app/courts/type/court";
 import {AuthCheck} from "@/app/components/AuthCheck";
 import axiosInstance from "@/app/api/axios-intercepter";

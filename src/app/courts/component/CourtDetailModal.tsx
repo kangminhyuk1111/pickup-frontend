@@ -72,7 +72,7 @@ const CourtDetailModal = ({court, isOpen, onClose}: CourtDetailModalProps) => {
         );
     };
 
-    const ReviewItem = ({review, renderStars}: { review: Review, renderStars: (rating: number) => JSX.Element[] }) => (
+    const ReviewItem = ({review, renderStars}: { review: Review, renderStars: (rating: number) => any }) => (
         <div className="border-b border-zinc-800 pb-4">
             <div className="flex items-center gap-2 mb-2">
                 <div className="w-8 h-8 bg-zinc-800 rounded-full"/>

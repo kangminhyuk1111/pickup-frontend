@@ -3,41 +3,40 @@
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useState, useEffect} from 'react';
-import {getCookie, deleteCookie} from 'cookies-next'; // 쿠키 관리를 위해 추가
+import {getCookie, deleteCookie} from 'cookies-next';
+import axiosInstance from "@/app/api/axios-intercepter"; // 쿠키 관리를 위해 추가
+
+interface UserProfile {
+    id: number;
+    email: string;
+    nickname: string;
+    profileImage: string | null;
+    height: number | null;
+    weight: number | null;
+    position: string | null;
+    level: string | null;
+    mannerScore: number;
+    socialProvider: string | null;
+    lastLoginAt: string;
+}
 
 export const NavBar = () => {
     const pathname = usePathname();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<UserProfile | null>(null);
 
     useEffect(() => {
-        const checkLoginStatus = () => {
+        const checkLoginStatus = async () => {
             const token = getCookie('accessToken');
             if (token) {
                 setIsLoggedIn(true);
-                // TODO: 토큰이 있다면 서버에서 유저 정보를 가져오는 API 호출
-                fetchUserProfile(token);
+                const response = await axiosInstance.get("/member/mypage")
+                setUser(response.data)
             }
         };
 
         checkLoginStatus();
     }, []);
-
-    const fetchUserProfile = async (token: any) => {
-        // try {
-        //     const response = await fetch('/api/user/profile', {
-        //         headers: {
-        //             'Authorization': `Bearer ${token}`
-        //         }
-        //     });
-        //     if (response.ok) {
-        //         const userData = await response.json();
-        //         setUser(userData);
-        //     }
-        // } catch (error) {
-        //     console.error('Failed to fetch user profile:', error);
-        // }
-    };
 
     const handleLogout = () => {
         deleteCookie('accessToken');
@@ -90,7 +89,7 @@ export const NavBar = () => {
                     {isLoggedIn ? (
                         <>
                             <Link
-                                href="/profile"
+                                href="/mypage"
                                 className="flex items-center space-x-2 text-white/80 hover:text-white"
                             >
                                 <div className="w-8 h-8 rounded-full bg-gray-300 overflow-hidden">
@@ -103,7 +102,7 @@ export const NavBar = () => {
                                         <div className="w-full h-full bg-gray-400"/>
                                     )}
                                 </div>
-                                <span className="text-sm">{user ? '사용자' : '사용자'}</span>
+                                <span className="text-sm">{user ? user.nickname : ""}</span>
                             </Link>
                             <button
                                 onClick={handleLogout}
