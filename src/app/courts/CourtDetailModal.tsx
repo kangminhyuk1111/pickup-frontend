@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     X,
     MapPin,
@@ -16,17 +16,82 @@ import {
     BookmarkPlus,
     ThumbsUp
 } from 'lucide-react';
+import {Court} from "@/app/courts/type/court";
+import axiosInstance from "@/app/api/axios-intercepter";
 
 interface CourtDetailModalProps {
-    court: any;
+    court: Court;
     isOpen: boolean;
     onClose: () => void;
 }
 
+interface Review {
+    id: number;
+    courtId: number;
+    userId: number;
+    rating: number;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+    deleted: boolean;
+}
+
 const CourtDetailModal = ({court, isOpen, onClose}: CourtDetailModalProps) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [reviews, setReviews] = useState<Review[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const getReviews = async (courtId: number) => {
+            try {
+                const response = await axiosInstance.get(`/courts/${courtId}`);
+                setReviews(response.data);
+            } catch (err: any) {
+                throw new Error("/courts/courtId api error")
+            }
+        }
+
+        getReviews(court.id);
+    }, [court.id]);
 
     if (!isOpen) return null;
+
+    // 리뷰 섹션 렌더링
+    const renderReviews = () => {
+        if (isLoading) return <div className="text-gray-400">리뷰를 불러오는 중...</div>;
+        if (error) return <div className="text-red-500">{error}</div>;
+        if (reviews.length === 0) return <div className="text-gray-400">아직 리뷰가 없습니다.</div>;
+
+        return (
+            <div className="space-y-4">
+                {reviews.map((review) => (
+                    <ReviewItem key={review.id} review={review} renderStars={renderStars}/>
+                ))}
+            </div>
+        );
+    };
+
+    const ReviewItem = ({review, renderStars}: { review: Review, renderStars: (rating: number) => JSX.Element[] }) => (
+        <div className="border-b border-zinc-800 pb-4">
+            <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 bg-zinc-800 rounded-full"/>
+                <div>
+                    <div className="text-white font-medium">Baller #{review.userId}</div>
+                    <div className="text-gray-400 text-sm">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                    </div>
+                </div>
+            </div>
+            <div className="flex mb-2">
+                {renderStars(review.rating)}
+            </div>
+            <p className="text-gray-300">
+                {review.content}
+            </p>
+        </div>
+    );
+
 
     const renderStars = (rating: number) => {
         return [...Array(5)].map((_, index) => (
@@ -105,13 +170,15 @@ const CourtDetailModal = ({court, isOpen, onClose}: CourtDetailModalProps) => {
                         </div>
                     </div>
 
-                    {/* 평점 및 리뷰 */}
+                    {/* TODO API 연결*/}
                     <div className="flex items-center gap-4 mb-6">
                         <div className="flex items-center gap-1">
                             {renderStars(court.rating)}
-                            <span className="text-white ml-2">{court.rating}</span>
+                            <span className="text-white ml-2">
+                                {reviews.length > 0 ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1) : 0}
+                            </span>
                         </div>
-                        <span className="text-gray-400">(23 리뷰)</span>
+                        <span className="text-gray-400">({reviews.length})</span>
                     </div>
 
                     {/* 주요 정보 그리드 */}
@@ -158,21 +225,6 @@ const CourtDetailModal = ({court, isOpen, onClose}: CourtDetailModalProps) => {
                         </div>
                     </div>
 
-                    {/* 추천 시간대 */}
-                    <div className="mb-8">
-                        <h3 className="text-lg font-bold text-white mb-4">추천 시간대</h3>
-                        <div className="bg-zinc-800/50 p-4 rounded-lg">
-                            <div className="space-y-3">
-                                {court.popularTimes.map((timeSlot: any, index: number) => (
-                                    <div key={index} className="flex items-center gap-4">
-                                        <div className="text-gray-400 w-20">{timeSlot.day}</div>
-                                        <div className="text-white">{timeSlot.times.join(', ')}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
                     {/* 리뷰 섹션 */}
                     <div>
                         <div className="flex justify-between items-center mb-4">
@@ -181,24 +233,7 @@ const CourtDetailModal = ({court, isOpen, onClose}: CourtDetailModalProps) => {
                                 리뷰 작성하기
                             </button>
                         </div>
-                        <div className="space-y-4">
-                            {/* 리뷰 샘플 */}
-                            <div className="border-b border-zinc-800 pb-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-8 h-8 bg-zinc-800 rounded-full"/>
-                                    <div>
-                                        <div className="text-white font-medium">사용자</div>
-                                        <div className="text-gray-400 text-sm">2024.03.24</div>
-                                    </div>
-                                </div>
-                                <div className="flex mb-2">
-                                    {renderStars(4)}
-                                </div>
-                                <p className="text-gray-300">
-                                    코트 상태가 좋고 저녁에도 조명이 밝아서 좋습니다.
-                                </p>
-                            </div>
-                        </div>
+                        {renderReviews()}
                     </div>
                 </div>
             </div>

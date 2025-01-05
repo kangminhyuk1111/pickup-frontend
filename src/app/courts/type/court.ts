@@ -16,10 +16,6 @@ export interface Court {
     images: string[];
     facilities: string[];
     bestTime: string;
-    popularTimes: {
-        day: string;
-        times: string[];
-    }[];
 }
 
 export const courts: Court[] = [
@@ -40,9 +36,6 @@ export const courts: Court[] = [
         images: ["/img/court/jamsil.jpg"],
         facilities: ["화장실", "편의점", "벤치"],
         bestTime: "저녁",
-        popularTimes: [
-            { day: "주말", times: ["오후 4시-7시"] }
-        ]
     },
     {
         id: 2,
@@ -61,9 +54,6 @@ export const courts: Court[] = [
         images: ["/img/court/banpo.jpg"],
         facilities: ["화장실", "주차장", "음수대"],
         bestTime: "아침",
-        popularTimes: [
-            { day: "평일", times: ["저녁 7시-10시"] }
-        ]
     },
     {
         id: 3,
@@ -82,9 +72,6 @@ export const courts: Court[] = [
         images: ["/img/court/dogok.jpg"],
         facilities: ["벤치", "음수대"],
         bestTime: "저녁",
-        popularTimes: [
-            { day: "평일", times: ["저녁 6시-9시"] }
-        ]
     },
     {
         id: 4,
@@ -103,9 +90,6 @@ export const courts: Court[] = [
         images: ["/img/court/yangjae.jpg"],
         facilities: ["화장실", "주차장", "벤치"],
         bestTime: "오후",
-        popularTimes: [
-            { day: "주말", times: ["오후 2시-6시"] }
-        ]
     },
     {
         id: 5,
@@ -124,9 +108,6 @@ export const courts: Court[] = [
         images: ["/img/court/cheonho.jpg"],
         facilities: ["화장실", "벤치"],
         bestTime: "오전",
-        popularTimes: [
-            { day: "주말", times: ["오전 9시-12시"] }
-        ]
     },
     {
         id: 6,
@@ -145,10 +126,6 @@ export const courts: Court[] = [
         images: ["/img/court/olympicpark.jpg"],
         facilities: ["화장실", "편의점", "주차장", "음수대"],
         bestTime: "저녁",
-        popularTimes: [
-            { day: "평일", times: ["저녁 7시-10시"] },
-            { day: "주말", times: ["오후 2시-7시"] }
-        ]
     },
     {
         id: 7,
@@ -167,9 +144,6 @@ export const courts: Court[] = [
         images: ["/img/court/boramae.jpg"],
         facilities: ["화장실", "벤치", "음수대"],
         bestTime: "저녁",
-        popularTimes: [
-            { day: "평일", times: ["저녁 8시-11시"] }
-        ]
     },
     {
         id: 8,
@@ -188,8 +162,5 @@ export const courts: Court[] = [
         images: ["/img/court/dduksum.jpg"],
         facilities: ["화장실", "편의점", "주차장", "벤치"],
         bestTime: "저녁",
-        popularTimes: [
-            { day: "주말", times: ["오후 3시-8시"] }
-        ]
     }
 ];

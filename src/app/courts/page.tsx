@@ -1,25 +1,111 @@
 // src/app/courts/page.tsx
 'use client';
 
-import React, {useMemo, useState} from 'react';
-import {ParkingCircle, MapPin, Users, Clock, Star, Grid, Map as MapIcon} from 'lucide-react';
-import CourtDetailModal from "@/app/components/CourtDetailModal";
-import {Court, courts} from "@/app/courts/type/court";
+import React, {useEffect, useMemo, useState} from 'react';
+import {ParkingCircle, MapPin, Clock, Star, Grid, Map as MapIcon} from 'lucide-react';
+import CourtDetailModal from "@/app/courts/CourtDetailModal";
+import {Court} from "@/app/courts/type/court";
 import {AuthCheck} from "@/app/components/AuthCheck";
+import axiosInstance from "@/app/api/axios-intercepter";
+import {AxiosResponse} from "axios";
 
 const CourtsPage = () => {
     const [viewMode, setViewMode] = useState<'card' | 'map'>('card');
     const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
-    const [locationFilter, setLocationFilter] = useState('전체'); // 지역 필터 상태 추가
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);  // 에러 상태 추가
+    const [locationFilter, setLocationFilter] = useState('전체');
+    const [courts, setCourts] = useState<Court[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
 
-    // 지역 목록 (courts 배열에서 고유한 지역 추출)
-    const locations = ['전체', ...new Set(courts.map(court => court.location))];
+    const itemsPerPage = 6;
 
-    // 필터링된 코트 목록
+    useEffect(() => {
+        const getCourts = async () => {
+            try {
+                setIsLoading(true); // 로딩 상태 명시적 설정
+                const response: AxiosResponse = await axiosInstance.get("/courts");
+                // 데이터 설정 후 로딩 상태 변경
+                setCourts(response.data);
+            } catch (err: any) {
+                console.error("Error fetching courts:", err);
+            } finally {
+                setIsLoading(false); // 성공/실패 상관없이 로딩 상태 해제
+            }
+        };
+
+        getCourts();
+    }, []);
+
+    const locations = useMemo(() => {
+        return ['전체', ...new Set(courts.map(court => court.location))];
+    }, [courts]);  // courts가 변경될 때만 재계산
+
+    // filteredCourts도 이미 useMemo를 사용 중이지만, 의존성 배열 수정
     const filteredCourts = useMemo(() => {
         if (locationFilter === '전체') return courts;
         return courts.filter(court => court.location === locationFilter);
-    }, [locationFilter]);
+    }, [courts, locationFilter]);
+
+    // 페이지네이션 관련 계산
+    const pageCount = Math.ceil(filteredCourts.length / itemsPerPage);
+    const currentCourts = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredCourts.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredCourts, currentPage]);
+
+    // 페이지 변경 핸들러
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // 페이지네이션 컴포넌트
+    const Pagination = () => {
+        if (pageCount <= 1) return null;
+
+        return (
+            <div className="flex justify-center gap-2 mt-8">
+                <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-lg ${
+                        currentPage === 1
+                            ? 'bg-zinc-800 text-gray-500 cursor-not-allowed'
+                            : 'bg-zinc-800 text-white hover:bg-zinc-700'
+                    }`}
+                >
+                    이전
+                </button>
+
+                {[...Array(pageCount)].map((_, index) => (
+                    <button
+                        key={index + 1}
+                        onClick={() => handlePageChange(index + 1)}
+                        className={`px-4 py-2 rounded-lg ${
+                            currentPage === index + 1
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-zinc-800 text-white hover:bg-zinc-700'
+                        }`}
+                    >
+                        {index + 1}
+                    </button>
+                ))}
+
+                <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === pageCount}
+                    className={`px-4 py-2 rounded-lg ${
+                        currentPage === pageCount
+                            ? 'bg-zinc-800 text-gray-500 cursor-not-allowed'
+                            : 'bg-zinc-800 text-white hover:bg-zinc-700'
+                    }`}
+                >
+                    다음
+                </button>
+            </div>
+        );
+    };
 
     const renderStars = (rating: number) => {
         return [...Array(5)].map((_, index) => (
@@ -100,6 +186,23 @@ const CourtsPage = () => {
         </div>
     );
 
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-black pt-20 flex items-center justify-center">
+                <div className="text-white">Loading...</div>
+            </div>
+        );
+    }
+
+    // 에러 상태 UI 추가
+    if (error) {
+        return (
+            <div className="min-h-screen bg-black pt-20 flex items-center justify-center">
+                <div className="text-red-500">{error}</div>
+            </div>
+        );
+    }
+
     return (
         <>
             <AuthCheck/>
@@ -156,12 +259,14 @@ const CourtsPage = () => {
 
                     {/* 코트 목록 */}
                     {viewMode === 'card' ? (
-                        <div className="grid md:grid-cols-3 gap-4">
-                            {filteredCourts.map(court => (
-                                <CourtCard key={court.id} court={court}/>
-                            ))}
-                        </div>
-
+                        <>
+                            <div className="grid md:grid-cols-3 gap-4">
+                                {currentCourts.map(court => (
+                                    <CourtCard key={court.id} court={court}/>
+                                ))}
+                            </div>
+                            <Pagination />
+                        </>
                     ) : (
                         <div className="bg-zinc-900 rounded-xl h-[600px] flex items-center justify-center">
                             {/* 지도 구현 필요 - Kakao Maps or Google Maps */}

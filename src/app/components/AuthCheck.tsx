@@ -5,6 +5,7 @@ import {showLoginAlert} from "@/app/components/LoginAlert";
 export function AuthCheck() {
     useEffect(() => {
         const checkAuth = async () => {
+            console.log(window.location.href)
             const response = await fetch(window.location.href);
             const authRequired = response.headers.get('x-auth-required');
 

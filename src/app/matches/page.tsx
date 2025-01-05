@@ -5,6 +5,8 @@ import {MapPin, Clock, Calendar, Users, Wallet, Plus, Search, ChevronLeft, Chevr
 import {AuthCheck} from "@/app/components/AuthCheck";
 import MatchDetailModal from "@/app/matches/component/MatchDetailModal";
 import type {Post, Level, Status} from "@/app/matches/type/post-type";
+import Link from "next/link";
+import axiosInstance from "@/app/api/axios-intercepter";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -18,21 +20,30 @@ const PickupBoard = () => {
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
 
+    const LEVEL_MAPPING = {
+        '초급': 'BEGINNER',
+        '중급': 'INTERMEDIATE',
+        '상급': 'ADVANCED'
+    } as const;
+
     useEffect(() => {
         const fetchPosts = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch('/api/matches');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch matches');
-                }
-                const data = await response.json();
-                // 날짜와 시간을 기준으로 정렬
-                const sortedData = data.sort((a: Post, b: Post) => {
+                const { data } = await axiosInstance.get('/matches');
+
+                // 날짜와 시간을 기준으로 정렬하기 전에 level 변환
+                const transformedData = data.map((post: Post) => ({
+                    ...post,
+                    level: LEVEL_MAPPING[post.level as keyof typeof LEVEL_MAPPING] || post.level
+                }));
+
+                const sortedData = transformedData.sort((a: Post, b: Post) => {
                     const dateA = new Date(`${a.date}T${a.time}`);
                     const dateB = new Date(`${b.date}T${b.time}`);
                     return dateA.getTime() - dateB.getTime();
                 });
+
                 setPosts(sortedData);
             } catch (err: any) {
                 setError(err.message);
@@ -149,11 +160,13 @@ const PickupBoard = () => {
                             </h1>
                             <p className="text-zinc-400 mt-2 text-base md:text-lg">근처의 매칭을 찾아보세요</p>
                         </div>
-                        <button
-                            className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl font-bold hover:opacity-90 transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 w-full md:w-auto justify-center">
-                            <Plus className="w-5 h-5"/>
-                            새로운 매칭 만들기
-                        </button>
+                        <Link href="/matches/write" className="w-full md:w-auto">
+                            <button
+                                className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl font-bold hover:opacity-90 transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 w-full justify-center">
+                                <Plus className="w-5 h-5"/>
+                                새로운 매칭 만들기
+                            </button>
+                        </Link>
                     </div>
 
                     {/* 검색 & 필터 */}
