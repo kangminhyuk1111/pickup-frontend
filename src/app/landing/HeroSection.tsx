@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Play, Users, MapPin } from 'lucide-react';
+import {getFCMToken} from "@/app/firebase";
 
 const HeroSection = () => {
     const [isVisible, setIsVisible] = useState(false);

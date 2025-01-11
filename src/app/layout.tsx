@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type {Metadata} from "next";
+import {Inter} from "next/font/google";
 import "./globals.css";
 import React from "react";
 import Footer from "@/app/landing/FooterSection";
 import {NavBar} from "@/app/landing/Navbar";
+import {ToastContainer} from "react-toastify";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
     title: "PICKUP - Find Your Next Game",
@@ -20,9 +21,16 @@ export default function RootLayout({
     return (
         <html lang="en">
         <body className={inter.className}>
-        <NavBar />
+        <ToastContainer
+            position={'top-center'}
+            limit={1}
+            closeButton={false}
+            autoClose={4000}
+            hideProgressBar
+        />
+        <NavBar/>
         {children}
-        <Footer />
+        <Footer/>
         </body>
         </html>
     );
