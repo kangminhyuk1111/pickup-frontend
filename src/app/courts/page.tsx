@@ -6,14 +6,104 @@ import {ParkingCircle, MapPin, Clock, Star, Grid, Map as MapIcon} from 'lucide-r
 import CourtDetailModal from "@/app/courts/component/CourtDetailModal";
 import {Court} from "@/app/courts/type/court";
 import {AuthCheck} from "@/app/components/AuthCheck";
-import axiosInstance from "@/app/api/axios-intercepter";
-import {AxiosResponse} from "axios";
+
+// 더미 데이터
+const DUMMY_COURTS: Court[] = [
+    {
+        id: 1,
+        name: "올림픽공원 농구장",
+        address: "서울특별시 송파구 올림픽로 424",
+        location: "송파구",
+        description: "올림픽공원 내에 위치한 야외 농구장입니다. 총 4개의 코트가 있으며, 바닥 상태가 매우 좋습니다.",
+        images: ["/images/courts/olympic-park.jpg"],
+        hoops: 8,
+        rating: 4.5,
+        bestTime: "저녁",
+        parking: true,
+        facilities: ["화장실", "조명", "음수대"],
+        openingHours: "06:00 - 22:00",
+        restrictions: "공원 내 취사 금지"
+    },
+    {
+        id: 2,
+        name: "한강공원 농구장",
+        address: "서울특별시 영등포구 여의동로 330",
+        location: "영등포구",
+        description: "한강변에 위치한 농구장으로, 시원한 강바람을 맞으며 운동할 수 있습니다.",
+        images: ["/images/courts/hangang-park.jpg"],
+        hoops: 4,
+        rating: 4.0,
+        bestTime: "아침",
+        parking: true,
+        facilities: ["화장실", "편의점", "자판기"],
+        openingHours: "24시간",
+        restrictions: "우천시 이용 제한"
+    },
+    {
+        id: 3,
+        name: "강남구민체육센터 농구장",
+        address: "서울특별시 강남구 삼성로 168",
+        location: "강남구",
+        description: "실내 농구장으로, 날씨와 관계없이 이용 가능합니다.",
+        images: ["/images/courts/gangnam-center.jpg"],
+        hoops: 6,
+        rating: 5.0,
+        bestTime: "주말",
+        parking: true,
+        facilities: ["샤워실", "락커룸", "매점"],
+        openingHours: "06:00 - 22:00",
+        restrictions: "회원제 운영"
+    },
+    {
+        id: 4,
+        name: "마포구민체육센터",
+        address: "서울특별시 마포구 백범로 235",
+        location: "마포구",
+        description: "깨끗하고 관리가 잘 되어있는 실내 농구장입니다.",
+        images: ["/images/courts/mapo-center.jpg"],
+        hoops: 4,
+        rating: 4.0,
+        bestTime: "오후",
+        parking: true,
+        facilities: ["화장실", "샤워실", "음수대"],
+        openingHours: "09:00 - 21:00",
+        restrictions: "실내화 필수"
+    },
+    {
+        id: 5,
+        name: "노원마을 농구장",
+        address: "서울특별시 노원구 동일로 1286",
+        location: "노원구",
+        description: "동네 주민들이 자주 이용하는 아늑한 농구장입니다.",
+        images: ["/images/courts/nowon-court.jpg"],
+        hoops: 2,
+        rating: 3.5,
+        bestTime: "저녁",
+        parking: false,
+        facilities: ["벤치", "조명"],
+        openingHours: "24시간",
+        restrictions: "없음"
+    },
+    {
+        id: 6,
+        name: "서초실내체육관",
+        address: "서울특별시 서초구 반포대로 58",
+        location: "서초구",
+        description: "전문적인 시설을 갖춘 실내 농구장입니다.",
+        images: ["/images/courts/seocho-gym.jpg"],
+        hoops: 6,
+        rating: 4.5,
+        bestTime: "오전",
+        parking: true,
+        facilities: ["샤워실", "락커룸", "체력단련실"],
+        openingHours: "06:00 - 22:00",
+        restrictions: "회원 우선"
+    }
+];
 
 const CourtsPage = () => {
     const [viewMode, setViewMode] = useState<'card' | 'map'>('card');
     const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);  // 에러 상태 추가
     const [locationFilter, setLocationFilter] = useState('전체');
     const [courts, setCourts] = useState<Court[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -21,46 +111,30 @@ const CourtsPage = () => {
     const itemsPerPage = 6;
 
     useEffect(() => {
-        const getCourts = async () => {
-            try {
-                setIsLoading(true); // 로딩 상태 명시적 설정
-                const response: AxiosResponse = await axiosInstance.get("/courts");
-                // 데이터 설정 후 로딩 상태 변경
-                setCourts(response.data);
-            } catch (err: any) {
-                console.error("Error fetching courts:", err);
-            } finally {
-                setIsLoading(false); // 성공/실패 상관없이 로딩 상태 해제
-            }
-        };
-
-        getCourts();
+        // API 호출 대신 더미 데이터 사용
+        setCourts(DUMMY_COURTS);
     }, []);
 
     const locations = useMemo(() => {
         return ['전체', ...new Set(courts.map(court => court.location))];
-    }, [courts]);  // courts가 변경될 때만 재계산
+    }, [courts]);
 
-    // filteredCourts도 이미 useMemo를 사용 중이지만, 의존성 배열 수정
     const filteredCourts = useMemo(() => {
         if (locationFilter === '전체') return courts;
         return courts.filter(court => court.location === locationFilter);
     }, [courts, locationFilter]);
 
-    // 페이지네이션 관련 계산
     const pageCount = Math.ceil(filteredCourts.length / itemsPerPage);
     const currentCourts = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         return filteredCourts.slice(startIndex, startIndex + itemsPerPage);
     }, [filteredCourts, currentPage]);
 
-    // 페이지 변경 핸들러
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // 페이지네이션 컴포넌트
     const Pagination = () => {
         if (pageCount <= 1) return null;
 
@@ -121,9 +195,7 @@ const CourtsPage = () => {
     };
 
     const CourtCard = ({court}: { court: Court }) => (
-        <div
-            className="bg-zinc-900/50 backdrop-blur rounded-xl border border-zinc-800 overflow-hidden hover:border-zinc-700 transition-all">
-            {/* 이미지 */}
+        <div className="bg-zinc-900/50 backdrop-blur rounded-xl border border-zinc-800 overflow-hidden hover:border-zinc-700 transition-all">
             <div
                 className="relative h-48 cursor-pointer"
                 onClick={() => setSelectedCourt(court)}>
@@ -132,13 +204,11 @@ const CourtsPage = () => {
                     alt={court.name}
                     className="w-full h-full object-cover"
                 />
-                <div
-                    className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm">
+                <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm">
                     {court.hoops}개 링
                 </div>
             </div>
 
-            {/* 정보 */}
             <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
                     <div>
@@ -153,7 +223,6 @@ const CourtsPage = () => {
                     </div>
                 </div>
 
-                {/* 특징 */}
                 <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="flex items-center text-gray-400">
                         <Clock className="w-4 h-4 mr-2"/>
@@ -165,15 +234,14 @@ const CourtsPage = () => {
                     </div>
                 </div>
 
-                {/* 태그 */}
                 <div className="flex flex-wrap gap-2 mt-4">
                     {court.facilities.map((facility, index) => (
                         <span
                             key={index}
                             className="px-3 py-1 bg-zinc-800 text-gray-300 rounded-full text-sm"
                         >
-              {facility}
-            </span>
+                            {facility}
+                        </span>
                     ))}
                 </div>
                 <button
@@ -186,26 +254,9 @@ const CourtsPage = () => {
         </div>
     );
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-black pt-20 flex items-center justify-center">
-                <div className="text-white">Loading...</div>
-            </div>
-        );
-    }
-
-    // 에러 상태 UI 추가
-    if (error) {
-        return (
-            <div className="min-h-screen bg-black pt-20 flex items-center justify-center">
-                <div className="text-red-500">{error}</div>
-            </div>
-        );
-    }
-
     return (
         <>
-            <AuthCheck/>
+            {/*<AuthCheck/>*/}
             <div className="min-h-screen bg-black pt-20 pb-20">
                 <div className="max-w-6xl mx-auto px-4">
                     {/* 헤더 */}
@@ -269,7 +320,6 @@ const CourtsPage = () => {
                         </>
                     ) : (
                         <div className="bg-zinc-900 rounded-xl h-[600px] flex items-center justify-center">
-                            {/* 지도 구현 필요 - Kakao Maps or Google Maps */}
                             <p className="text-gray-400">지도 뷰 구현 예정</p>
                         </div>
                     )}

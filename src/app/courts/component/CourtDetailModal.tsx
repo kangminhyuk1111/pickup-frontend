@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     X,
     MapPin,
@@ -17,7 +17,6 @@ import {
     ThumbsUp
 } from 'lucide-react';
 import {Court} from "@/app/courts/type/court";
-import axiosInstance from "@/app/api/axios-intercepter";
 
 interface CourtDetailModalProps {
     court: Court;
@@ -36,40 +35,59 @@ interface Review {
     deleted: boolean;
 }
 
+// 더미 리뷰 데이터
+const DUMMY_REVIEWS: Review[] = [
+    {
+        id: 1,
+        courtId: 1,
+        userId: 101,
+        rating: 5,
+        content: "코트 상태가 매우 좋고 조명도 밝아서 야간 운동하기 좋습니다. 주차 공간도 넓어서 편리해요!",
+        createdAt: "2025-01-10T09:00:00Z",
+        updatedAt: "2025-01-10T09:00:00Z",
+        deleted: false
+    },
+    {
+        id: 2,
+        courtId: 1,
+        userId: 102,
+        rating: 4,
+        content: "전반적으로 만족스럽습니다. 다만 주말에는 사람이 많아서 기다려야 할 수 있어요.",
+        createdAt: "2025-01-08T15:30:00Z",
+        updatedAt: "2025-01-08T15:30:00Z",
+        deleted: false
+    },
+    {
+        id: 3,
+        courtId: 1,
+        userId: 103,
+        rating: 4,
+        content: "농구하기 좋은 곳입니다. 바닥 상태도 괜찮고 후크샷 연습하기 좋아요.",
+        createdAt: "2025-01-05T18:45:00Z",
+        updatedAt: "2025-01-05T18:45:00Z",
+        deleted: false
+    }
+];
+
 const CourtDetailModal = ({court, isOpen, onClose}: CourtDetailModalProps) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [reviews, setReviews] = useState<Review[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const getReviews = async (courtId: number) => {
-            try {
-                const response = await axiosInstance.get(`/courts/${courtId}`);
-                setReviews(response.data);
-            } catch (err: any) {
-                throw new Error("/courts/courtId api error")
-            }
-        }
-
-        getReviews(court.id);
-    }, [court.id]);
+    // API 호출 대신 더미 데이터 사용
+    const reviews = DUMMY_REVIEWS;
 
     if (!isOpen) return null;
 
-    // 리뷰 섹션 렌더링
-    const renderReviews = () => {
-        if (isLoading) return <div className="text-gray-400">리뷰를 불러오는 중...</div>;
-        if (error) return <div className="text-red-500">{error}</div>;
-        if (reviews.length === 0) return <div className="text-gray-400">아직 리뷰가 없습니다.</div>;
-
-        return (
-            <div className="space-y-4">
-                {reviews.map((review) => (
-                    <ReviewItem key={review.id} review={review} renderStars={renderStars}/>
-                ))}
-            </div>
-        );
+    const renderStars = (rating: number) => {
+        return [...Array(5)].map((_, index) => (
+            <Star
+                key={index}
+                className={`w-4 h-4 ${
+                    index < rating
+                        ? 'text-yellow-400 fill-yellow-400'
+                        : 'text-gray-400'
+                }`}
+            />
+        ));
     };
 
     const ReviewItem = ({review, renderStars}: { review: Review, renderStars: (rating: number) => any }) => (
@@ -92,18 +110,17 @@ const CourtDetailModal = ({court, isOpen, onClose}: CourtDetailModalProps) => {
         </div>
     );
 
+    // 리뷰 섹션 렌더링
+    const renderReviews = () => {
+        if (reviews.length === 0) return <div className="text-gray-400">아직 리뷰가 없습니다.</div>;
 
-    const renderStars = (rating: number) => {
-        return [...Array(5)].map((_, index) => (
-            <Star
-                key={index}
-                className={`w-4 h-4 ${
-                    index < rating
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-400'
-                }`}
-            />
-        ));
+        return (
+            <div className="space-y-4">
+                {reviews.map((review) => (
+                    <ReviewItem key={review.id} review={review} renderStars={renderStars}/>
+                ))}
+            </div>
+        );
     };
 
     return (
@@ -170,7 +187,7 @@ const CourtDetailModal = ({court, isOpen, onClose}: CourtDetailModalProps) => {
                         </div>
                     </div>
 
-                    {/* TODO API 연결*/}
+                    {/* 평점 */}
                     <div className="flex items-center gap-4 mb-6">
                         <div className="flex items-center gap-1">
                             {renderStars(court.rating)}
@@ -189,11 +206,11 @@ const CourtDetailModal = ({court, isOpen, onClose}: CourtDetailModalProps) => {
                         </div>
                         <div className="bg-zinc-800/50 p-4 rounded-lg">
                             <div className="text-gray-400 text-sm mb-1">바닥 재질</div>
-                            <div className="text-white font-semibold">{court.surface}</div>
+                            <div className="text-white font-semibold">{court.surface || '아스팔트'}</div>
                         </div>
                         <div className="bg-zinc-800/50 p-4 rounded-lg">
                             <div className="text-gray-400 text-sm mb-1">이용 시간</div>
-                            <div className="text-white font-semibold">24시간</div>
+                            <div className="text-white font-semibold">{court.openingHours || '24시간'}</div>
                         </div>
                     </div>
 

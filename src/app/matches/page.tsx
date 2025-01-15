@@ -11,6 +11,79 @@ import axiosInstance from "@/app/api/axios-intercepter";
 const ITEMS_PER_PAGE = 10;
 
 const PickupBoard = () => {
+    const DUMMY_POSTS: any[] = [
+        {
+            id: 1,
+            title: "주말 농구 한 판 하실 분!",
+            courtName: "올림픽공원 농구장",
+            location: "송파구",
+            date: "2025-01-20",
+            time: "14:00",
+            level: "INTERMEDIATE",
+            currentPlayers: 8,
+            maxPlayers: 10,
+            cost: 5000,
+            status: "OPEN",
+            description: "주말 오후에 농구하실 분들 모집합니다. 중급 이상 실력자 환영!"
+        },
+        {
+            id: 2,
+            title: "평일 저녁 친선경기",
+            courtName: "강남구민체육센터",
+            location: "강남구",
+            date: "2025-01-18",
+            time: "19:30",
+            level: "BEGINNER",
+            currentPlayers: 6,
+            maxPlayers: 10,
+            cost: 0,
+            status: "OPEN",
+            description: "초보자도 환영합니다. 재미있게 즐기면서 해요!"
+        },
+        {
+            id: 3,
+            title: "실력자 모집합니다",
+            courtName: "마포구민체육센터",
+            location: "마포구",
+            date: "2025-01-19",
+            time: "16:00",
+            level: "ADVANCED",
+            currentPlayers: 10,
+            maxPlayers: 10,
+            cost: 10000,
+            status: "CLOSED",
+            description: "상급자 위주로 진행되는 경기입니다."
+        },
+        {
+            id: 4,
+            title: "아침 농구 모임",
+            courtName: "서초실내체육관",
+            location: "서초구",
+            date: "2025-01-21",
+            time: "07:00",
+            level: "INTERMEDIATE",
+            currentPlayers: 4,
+            maxPlayers: 8,
+            cost: 8000,
+            status: "OPEN",
+            description: "아침 운동하실 분들 모집합니다!"
+        },
+        {
+            id: 5,
+            title: "주말 초보자 모임",
+            courtName: "노원구민체육센터",
+            location: "노원구",
+            date: "2025-01-22",
+            time: "10:00",
+            level: "BEGINNER",
+            currentPlayers: 6,
+            maxPlayers: 8,
+            cost: 5000,
+            status: "OPEN",
+            description: "농구 배우고 싶으신 분들 환영합니다."
+        }
+    ];
+
     const [locationFilter, setLocationFilter] = useState('all');
     const [levelFilter, setLevelFilter] = useState<Level | 'all'>('all');
     const [searchQuery, setSearchQuery] = useState('');
@@ -26,35 +99,108 @@ const PickupBoard = () => {
         '상급': 'ADVANCED'
     } as const;
 
-    useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                setIsLoading(true);
-                const { data } = await axiosInstance.get('/matches');
+    // useEffect(() => {
+    //     const fetchPosts = async () => {
+    //         try {
+    //             setIsLoading(true);
+    //             const { data } = await axiosInstance.get('/matches');
+    //
+    //             // 날짜와 시간을 기준으로 정렬하기 전에 level 변환
+    //             const transformedData = data.data.map((post: Post) => ({
+    //                 ...post,
+    //                 level: LEVEL_MAPPING[post.level as keyof typeof LEVEL_MAPPING] || post.level
+    //             }));
+    //
+    //             const sortedData = transformedData.sort((a: Post, b: Post) => {
+    //                 const dateA = new Date(`${a.date}T${a.time}`);
+    //                 const dateB = new Date(`${b.date}T${b.time}`);
+    //                 return dateA.getTime() - dateB.getTime();
+    //             });
+    //
+    //             setPosts(sortedData);
+    //         } catch (err: any) {
+    //             setError(err.message);
+    //             console.error('Error fetching matches:', err);
+    //         } finally {
+    //             setIsLoading(false);
+    //         }
+    //     };
+    //
+    //     fetchPosts();
+    // }, []);
 
-                // 날짜와 시간을 기준으로 정렬하기 전에 level 변환
-                const transformedData = data.map((post: Post) => ({
-                    ...post,
-                    level: LEVEL_MAPPING[post.level as keyof typeof LEVEL_MAPPING] || post.level
-                }));
-
-                const sortedData = transformedData.sort((a: Post, b: Post) => {
-                    const dateA = new Date(`${a.date}T${a.time}`);
-                    const dateB = new Date(`${b.date}T${b.time}`);
-                    return dateA.getTime() - dateB.getTime();
-                });
-
-                setPosts(sortedData);
-            } catch (err: any) {
-                setError(err.message);
-                console.error('Error fetching matches:', err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchPosts();
-    }, []);
+    // const locations = useMemo(() => {
+    //     const uniqueLocations = [...new Set(posts.map(post => post.location))];
+    //     return ['all', ...uniqueLocations];
+    // }, [posts]);
+    //
+    // const levels: (Level | 'all')[] = ['all', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
+    //
+    // const formatLevel = (level: Level) => {
+    //     const levelMap: Record<Level, string> = {
+    //         'BEGINNER': '초급',
+    //         'INTERMEDIATE': '중급',
+    //         'ADVANCED': '상급'
+    //     };
+    //     return levelMap[level];
+    // };
+    //
+    // const getLevelColor = (level: Level) => {
+    //     switch (level) {
+    //         case 'BEGINNER':
+    //             return 'text-green-500';
+    //         case 'INTERMEDIATE':
+    //             return 'text-yellow-500';
+    //         case 'ADVANCED':
+    //             return 'text-red-500';
+    //         default:
+    //             return 'text-gray-500';
+    //     }
+    // };
+    //
+    // const formatTime = (time: string) => {
+    //     const [hours, minutes] = time.split(':');
+    //     return `${hours}:${minutes}`;
+    // };
+    //
+    // const formatDate = (date: string) => {
+    //     const d = new Date(date);
+    //     return d.toLocaleDateString('ko-KR', {month: 'long', day: 'numeric', weekday: 'short'});
+    // };
+    //
+    // const formatCost = (cost: number) => {
+    //     return cost === 0 ? '무료' : `${cost.toLocaleString()}원`;
+    // };
+    //
+    // const filteredPosts = useMemo(() => {
+    //     return posts.filter(post => {
+    //         const matchesLocation = locationFilter === 'all' || post.location.includes(locationFilter);
+    //         const matchesLevel = levelFilter === 'all' || post.level === levelFilter;
+    //         const matchesSearch = searchQuery === '' ||
+    //             post.courtName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //             post.location.toLowerCase().includes(searchQuery.toLowerCase());
+    //         return matchesLocation && matchesLevel && matchesSearch;
+    //     });
+    // }, [posts, locationFilter, levelFilter, searchQuery]);
+    //
+    // // 페이지네이션 계산
+    // const totalPages = Math.ceil(filteredPosts.length / ITEMS_PER_PAGE);
+    // const paginatedPosts = useMemo(() => {
+    //     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    //     return filteredPosts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    // }, [filteredPosts, currentPage]);
+    //
+    // // 필터 변경 시 첫 페이지로 이동
+    // useEffect(() => {
+    //     setCurrentPage(1);
+    // }, [locationFilter, levelFilter, searchQuery]);
+    //
+    // // 페이지 이동 핸들러
+    // const handlePageChange = (page: number) => {
+    //     setCurrentPage(page);
+    //     // 페이지 상단으로 스크롤
+    //     window.scrollTo({top: 0, behavior: 'smooth'});
+    // };
 
     const locations = useMemo(() => {
         const uniqueLocations = [...new Set(posts.map(post => post.location))];
@@ -120,36 +266,36 @@ const PickupBoard = () => {
     // 필터 변경 시 첫 페이지로 이동
     useEffect(() => {
         setCurrentPage(1);
+        setPosts(DUMMY_POSTS);
     }, [locationFilter, levelFilter, searchQuery]);
 
     // 페이지 이동 핸들러
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-        // 페이지 상단으로 스크롤
         window.scrollTo({top: 0, behavior: 'smooth'});
     };
 
-    if (isLoading) {
-        return (
-            <div
-                className="min-h-screen bg-gradient-to-b from-zinc-900 to-black pt-24 pb-20 flex items-center justify-center">
-                <div className="text-white">Loading...</div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div
-                className="min-h-screen bg-gradient-to-b from-zinc-900 to-black pt-24 pb-20 flex items-center justify-center">
-                <div className="text-red-500">Error: {error}</div>
-            </div>
-        );
-    }
+    // if (isLoading) {
+    //     return (
+    //         <div
+    //             className="min-h-screen bg-gradient-to-b from-zinc-900 to-black pt-24 pb-20 flex items-center justify-center">
+    //             <div className="text-white">Loading...</div>
+    //         </div>
+    //     );
+    // }
+    //
+    // if (error) {
+    //     return (
+    //         <div
+    //             className="min-h-screen bg-gradient-to-b from-zinc-900 to-black pt-24 pb-20 flex items-center justify-center">
+    //             <div className="text-red-500">Error: {error}</div>
+    //         </div>
+    //     );
+    // }
 
     return (
         <>
-            <AuthCheck/>
+            {/*<AuthCheck/>*/}
             <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-black pt-24 pb-20">
                 <div className="max-w-7xl mx-auto px-4">
                     {/* 헤더 섹션 */}
